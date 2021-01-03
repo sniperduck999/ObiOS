@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-//#include <string.h>
 
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -93,6 +92,9 @@ void terminal_putchar(char c)
                 terminal_row = 0;
         }
     }
+	if (terminal_row >= 24) {
+		terminal_scroll();
+	}
 }
  
 void terminal_write(const char* data, size_t size) 
@@ -108,7 +110,7 @@ void terminal_writestring(const char* data)
 
 void terminal_scroll(void) 
 {
-	terminal_row = 0;
+	terminal_row -= 1;
 	terminal_column = 0;
 	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
 	uint16_t* temp_terminal_buffer = terminal_buffer;
@@ -119,11 +121,14 @@ void terminal_scroll(void)
 			if (index >= 80)
 			{
 				terminal_buffer[index - 80] = temp_terminal_buffer[index];
-			} else if (index >= 2000)
-			{
-				terminal_buffer[index - 80] = vga_entry(' ', terminal_color);
+
+				if (index >= 1920)
+				{
+					terminal_buffer[index] = vga_entry(' ', terminal_color);
+					// terminal_buffer[index] = temp_terminal_buffer[index];
+				}
 			}
-		}
+		}	
 	}
 }
 
@@ -131,8 +136,6 @@ void kernel_main(void)
 {
 	terminal_initialize();
 
-	terminal_writestring("1 testing pull\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26");
-	terminal_scroll();
-	
-	//memcpy(); --function normally included in string.h probably have to make myself
+	terminal_writestring("1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27");
+	terminal_writestring("\nHello, World!");
 }
